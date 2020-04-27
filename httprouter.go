@@ -85,15 +85,18 @@ func HttprouterAdapt(h http.Handler, httprParamsCtxKey interface{}, adapters ...
 	return compatibleHandler(h, httprParamsCtxKey)
 }
 
-func WrapHandleFuncAdapters(hFn http.HandlerFunc, adapters []Adapter, preAdaptrs []Adapter, postAdaptrs []Adapter) httprouter.Handle {
+func WrapHandleFuncAdapters(adapters []Adapter, hFn http.HandlerFunc, beforeAdaptrs []Adapter, afterAdaptrs []Adapter) httprouter.Handle {
+	if adapters == nil {
+		adapters = []Adapter{}
+	}
 	//to beginning
-	if preAdaptrs != nil {
-		adapters = append(preAdaptrs, adapters...)
+	if beforeAdaptrs != nil {
+		adapters = append(beforeAdaptrs, adapters...)
 	}
 	adapters = append(adapters, toAdapter(hFn))
 	//to end
-	if postAdaptrs != nil {
-		adapters = append(adapters, postAdaptrs...)
+	if afterAdaptrs != nil {
+		adapters = append(adapters, afterAdaptrs...)
 	}
 
 	return HttprouterAdaptFn(emptyHandlerFn, CtxHttpRouterParamsKey, adapters...)
@@ -111,13 +114,14 @@ func ToHttpRouterHandle(handlerFunc http.HandlerFunc, lifecycleAdapters *Request
 	return WrapHandleFuncAdapters(
 		nil,
 		handlerFunc,
-		lifecycleAdapters.PreHandler, lifecycleAdapters.PostHandler,
+		lifecycleAdapters.BeforeHandlerFn, lifecycleAdapters.AfterHandlerFn,
 	)
 }
 
 func CreateOptionsRouterHandle(corsAdapter Adapter) httprouter.Handle {
-	return WrapHandleFuncAdapters(emptyHandlerFn,
+	return WrapHandleFuncAdapters(
 		[]Adapter{corsAdapter, AuthPermitAll(CtxRouteAuthorizedKey)},
+		emptyHandlerFn,
 		nil,
 		nil,
 	)
