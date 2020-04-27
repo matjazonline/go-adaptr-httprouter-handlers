@@ -49,6 +49,11 @@ const CtxWorkspaceIdentObjKey = ctxTokenAudienceType("ctxWorkspaceIdentObjType")
 
 type ctxWorkspaceIdentObjType string*/
 
+type RequestLifecycleAdapters struct {
+	BeforeHandlerFn []Adapter
+	AfterHandlerFn  []Adapter
+}
+
 //var once = sync.Once{}
 
 // Simple accepts the name of a function so you don't have to wrap it with http.HandlerFunc
@@ -92,6 +97,22 @@ func WrapHandleFuncAdapters(hFn http.HandlerFunc, adapters []Adapter, preAdaptrs
 	}
 
 	return HttprouterAdaptFn(emptyHandlerFn, CtxHttpRouterParamsKey, adapters...)
+}
+
+func ToHttpRouterHandle(handlerFunc http.HandlerFunc, lifecycleAdapters *RequestLifecycleAdapters) httprouter.Handle {
+	if lifecycleAdapters == nil {
+		return WrapHandleFuncAdapters(
+			nil,
+			handlerFunc,
+			nil,
+			nil,
+		)
+	}
+	return WrapHandleFuncAdapters(
+		nil,
+		handlerFunc,
+		lifecycleAdapters.PreHandler, lifecycleAdapters.PostHandler,
+	)
 }
 
 func CreateOptionsRouterHandle(corsAdapter Adapter) httprouter.Handle {
