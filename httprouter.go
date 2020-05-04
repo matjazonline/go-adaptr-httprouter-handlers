@@ -33,11 +33,11 @@ const CtxTokenUserIdentKey = ctxTokenUserIdentType("ctxTokenUserIdentType")
 
 type ctxTokenUserIdentType string
 
-const CtxAuthorizationsKey = ctxTokenUserIdentType("ctxAuthorizationsType")
+const CtxAuthorizationsKey = ctxAuthorizationsType("ctxAuthorizationsType")
 
 type ctxAuthorizationsType string
 
-const CtxNamespaceKey = ctxTokenUserIdentType("ctxNamespaceType")
+const CtxNamespaceKey = ctxNamespaceType("ctxNamespaceType")
 
 type ctxNamespaceType string
 
